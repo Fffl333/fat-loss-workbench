@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>她·轻盈工作台</title>
+<style>
+  :root{
+    --pink:#e8709a; --pink-deep:#d4507f; --pink-soft:#fdeef3;
+    --bg:#fff7f9; --card:#ffffff; --text:#4a3b40; --muted:#a98e97;
+    --green:#7bc8a4; --gold:#e9b44c;
+    --radius:18px; --shadow:0 8px 24px rgba(232,112,154,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+    background:linear-gradient(160deg,#fff7f9 0%,#fdf0f5 45%,#f7ecf3 100%);
+    color:var(--text); min-height:100vh; padding-bottom:130px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px}
+  header.hero{
+    background:linear-gradient(135deg,#f9a8c3,#e8709a 60%,#d4507f);
+    border-radius:26px; padding:26px 24px; color:#fff; box-shadow:var(--shadow);
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
+  }
+  .hero h1{font-size:22px;letter-spacing:2px;font-weight:600}
+  .hero .date{opacity:.9;font-size:13px;margin-top:6px}
+  .hero .motto{font-size:13px;margin-top:10px;background:rgba(255,255,255,.18);
+    display:inline-block;padding:4px 12px;border-radius:99px}
+  .ring-box{text-align:center;flex-shrink:0}
+  .ring-num{font-size:14px;margin-top:-58px;font-weight:700}
+  .ring-label{font-size:11px;opacity:.85;margin-top:34px}
+  nav.tabs{
+    display:flex;gap:8px;margin:18px 0;overflow-x:auto;padding-bottom:4px;
+  }
+  nav.tabs button{
+    flex-shrink:0;border:none;background:#fff;color:var(--muted);
+    padding:10px 18px;border-radius:99px;font-size:14px;cursor:pointer;
+    box-shadow:0 3px 10px rgba(232,112,154,.08);transition:.2s;font-weight:500;
+  }
+  nav.tabs button.active{background:var(--pink);color:#fff;font-weight:600}
+  .card{background:var(--card);border-radius:var(--radius);padding:20px;
+    box-shadow:var(--shadow);margin-bottom:16px}
+  .card h2{font-size:16px;color:var(--pink-deep);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--pink)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px}
+  .field label{font-size:12px;color:var(--muted)}
+  input,select,textarea{
+    border:1.5px solid #f5d7e2;border-radius:12px;padding:9px 12px;font-size:14px;
+    background:#fffdf8;color:var(--text);outline:none;width:100%;font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--pink)}
+  textarea{resize:vertical;min-height:90px;line-height:1.7}
+  .btn{
+    border:none;background:linear-gradient(135deg,#f49bc0,var(--pink));
+    color:#fff;border-radius:12px;padding:10px 20px;font-size:14px;cursor:pointer;
+    font-weight:600;box-shadow:0 4px 12px rgba(232,112,154,.3);transition:.15s;
+  }
+  .btn:active{transform:scale(.96)}
+  .btn.ghost{background:#fff;color:var(--pink);box-shadow:inset 0 0 0 1.5px #f5c2d6}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 0}
+  .list-item{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:11px 14px;background:var(--pink-soft);border-radius:14px;margin-bottom:8px;font-size:14px;
+  }
+  .list-item .meta{color:var(--muted);font-size:12px;margin-top:3px}
+  .del{border:none;background:none;color:#e0a9bc;cursor:pointer;font-size:16px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--pink-soft);border-radius:14px;padding:12px;text-align:center}
+  .stat b{font-size:18px;color:var(--pink-deep);display:block}
+  .stat span{font-size:11px;color:var(--muted)}
+  .habits{display:flex;flex-direction:column;gap:10px}
+  .habit{display:flex;align-items:center;gap:12px;background:var(--pink-soft);
+    border-radius:14px;padding:13px 16px;font-size:15px;cursor:pointer;transition:.2s}
+  .habit .box{width:22px;height:22px;border-radius:7px;border:2px solid #f0b9cf;
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0}
+  .habit.done{background:linear-gradient(135deg,#fde3ed,#fbd4e4)}
+  .habit.done .box{background:var(--pink);border-color:var(--pink)}
+  .habit.done .name{text-decoration:line-through;color:var(--muted)}
+  .habit .streak{margin-left:auto;font-size:12px;color:var(--gold);font-weight:600;white-space:nowrap}
+  .streak-flame{filter:none}
+  canvas{width:100%;height:220px;display:block}
+  .goal-banner{
+    background:linear-gradient(135deg,#fff0f5,#ffe4ee);border-radius:16px;padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .goal-banner .big{font-size:26px;font-weight:700;color:var(--pink-deep)}
+  .goal-banner .sub{font-size:12px;color:var(--muted)}
+  .week-list{display:flex;flex-direction:column;gap:8px}
+  .week-item{background:var(--pink-soft);border-radius:12px;padding:10px 14px;font-size:13px}
+  .week-item b{color:var(--pink-deep)}
+  .tag{display:inline-block;background:#fff;border-radius:99px;padding:2px 10px;font-size:11px;color:var(--pink);margin-left:6px}
+  .section-title{font-size:13px;color:var(--muted);margin:14px 0 8px}
+  .footer-nav{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:10px;font-size:11px;color:#d9b6c4}
+  header.hero{position:relative}
+  .menu-btn{
+    position:absolute;top:16px;left:16px;border:none;cursor:pointer;
+    background:rgba(255,255,255,.22);color:#fff;font-size:14px;font-weight:600;
+    padding:8px 16px;border-radius:99px;backdrop-filter:blur(4px);transition:.2s;
+  }
+  .menu-btn:hover{background:rgba(255,255,255,.35)}
+  .drawer{
+    position:fixed;top:0;left:0;bottom:0;width:240px;background:#fff;z-index:60;
+    transform:translateX(-105%);transition:transform .3s ease;
+    box-shadow:8px 0 30px rgba(212,80,127,.15);padding:22px 14px;
+    border-radius:0 24px 24px 0;display:flex;flex-direction:column;gap:6px;
+  }
+  .drawer.open{transform:none}
+  .drawer-head{font-weight:700;color:var(--pink-deep);font-size:17px;padding:2px 14px 14px;letter-spacing:2px}
+  .drawer button{
+    text-align:left;border:none;background:none;font-size:15px;padding:12px 14px;
+    border-radius:12px;cursor:pointer;color:var(--text);transition:.15s;font-family:inherit;
+  }
+  .drawer button:hover{background:var(--pink-soft)}
+  .drawer button.active{background:linear-gradient(135deg,#f49bc0,var(--pink));color:#fff;font-weight:600}
+  .menu-overlay{position:fixed;inset:0;background:rgba(74,59,64,.32);z-index:50;opacity:0;pointer-events:none;transition:.3s}
+  .menu-overlay.show{opacity:1;pointer-events:auto}
+  /* ===== 首页 ===== */
+  .greet-hi{font-size:21px;font-weight:700;color:var(--text);letter-spacing:.5px}
+  .greet-sub{font-size:13px;color:var(--muted);margin:5px 0 18px}
+  .tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .tile{
+    background:#fff;border-radius:20px;padding:18px 20px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:5px;cursor:pointer;transition:.2s;border:none;text-align:left;font-family:inherit;
+  }
+  .tile:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(232,112,154,.22)}
+  .tile .t-emoji{font-size:22px}
+  .tile b{font-size:26px;color:var(--text);font-weight:700}
+  .tile b i{font-style:normal;font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
+  .tile .t-label{font-size:12px;color:var(--muted);letter-spacing:1px}
+  @media (max-width:420px){.tile-grid{gap:10px}.tile b{font-size:22px}}
+  .insight-card{
+    background:linear-gradient(135deg,#ffffff,#fdf1f6);border-radius:18px;padding:16px 20px;
+    font-size:13px;color:#8d6b78;line-height:1.9;box-shadow:var(--shadow);margin-bottom:14px;
+  }
+  .insight-card b{color:var(--pink-deep)}
+  .quote-card{
+    text-align:center;font-size:14px;color:#c98aa4;font-style:italic;
+    padding:14px 10px 6px;letter-spacing:1px;
+  }
+  /* ===== 底部导航栏 ===== */
+  .bottom-nav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:min(760px,100%);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);
+    border-radius:24px 24px 0 0;box-shadow:0 -8px 30px rgba(212,80,127,.14);
+    display:flex;align-items:flex-end;z-index:35;padding:10px 8px 12px;
+  }
+  .bn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+    font-size:11px;color:#c3a3b0;border:none;background:none;padding:4px 0;transition:.2s;
+  }
+  .bn-item .bn-ico{font-size:21px;transition:.2s}
+  .bn-item.active{color:var(--pink-deep);font-weight:600}
+  .bn-item.active .bn-ico{transform:translateY(-2px) scale(1.12)}
+  .fab-wrap{flex:1;display:flex;flex-direction:column;align-items:center}
+  .fab{
+    width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#f49bc0,#d4507f);color:#fff;font-size:30px;line-height:1;
+    margin-top:-28px;box-shadow:0 8px 22px rgba(212,80,127,.42);transition:transform .3s;
+    display:flex;align-items:center;justify-content:center;padding-bottom:4px;
+  }
+  .fab.open{transform:rotate(45deg)}
+  .fab-menu{
+    position:fixed;bottom:104px;left:50%;transform:translateX(-50%) translateY(14px) scale(.92);
+    background:#fff;border-radius:18px;box-shadow:0 14px 38px rgba(74,59,64,.24);
+    padding:10px;display:flex;flex-direction:column;gap:4px;z-index:51;
+    opacity:0;pointer-events:none;transition:.25s;
+  }
+  .fab-menu.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1)}
+  .fab-menu button{
+    border:none;background:none;display:flex;align-items:center;gap:10px;font-size:14px;
+    padding:11px 20px;border-radius:12px;cursor:pointer;color:var(--text);white-space:nowrap;font-family:inherit;
+  }
+  .fab-menu button:hover{background:var(--pink-soft)}
+  .bar{height:10px;background:#fbe3ec;border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#f49bc0,#d4507f);border-radius:99px;transition:width .5s}
+  .demo-banner{
+    background:#fff6e6;border:1.5px dashed #ecc06a;border-radius:16px;
+    padding:12px 16px;font-size:13px;color:#8a6d3b;margin-top:16px;line-height:1.7;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .demo-banner button{
+    border:none;background:linear-gradient(135deg,#f2c26b,#e9a23b);color:#fff;
+    border-radius:99px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap;
+  }
+  @media (max-width:520px){ .stats{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div>
+      <h1>她 · 轻盈工作台 🌸</h1>
+      <div class="date" id="todayLine"></div>
+      <div class="motto" id="motto"></div>
+    </div>
+    <div class="ring-box">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="9"/>
+        <circle id="ring" cx="55" cy="55" r="46" fill="none" stroke="#fff" stroke-width="9"
+          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289"
+          transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .8s"/>
+      </svg>
+      <div class="ring-num" id="ringNum">0%</div>
+      <div class="ring-label">目标进度</div>
+    </div>
+  </header>
+
+  <div class="demo-banner" id="demoBanner" style="display:none">
+    <span>🎀 你现在看到的 <b>示例记录</b>：一位虚拟小姐姐 <b>8月19日～9月18日</b> 的完整减脂数据，供你参考效果；点右边按钮清空后，就可以开始记录你自己的啦～</span>
+    <button onclick="clearDemo()">清空示例，开始记录我自己的</button>
+  </div>
+
+  <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">目录 🌷</div>
+    <button data-tab="home" class="active">🏠 首页</button>
+    <button data-tab="goal">🎯 目标计划</button>
+    <button data-tab="diet">🥗 饮食记录</button>
+    <button data-tab="sport">🏃‍♀️ 运动记录</button>
+    <button data-tab="body">📏 身体记录</button>
+    <button data-tab="habit">✅ 习惯打卡</button>
+    <button data-tab="review">📝 周复盘</button>
+  </aside>
+
+  <!-- ========== 首页 ========== -->
+  <section id="tab-home">
+    <div class="greet-hi" id="greetHi"></div>
+    <div class="greet-sub" id="greetSub"></div>
+    <div class="tile-grid">
+      <button class="tile" onclick="goTab('diet')">
+        <span class="t-emoji">🥗</span>
+        <b id="tDiet">0 <i>kcal</i></b>
+        <span class="t-label">今日饮食</span>
+      </button>
+      <button class="tile" onclick="goTab('sport')">
+        <span class="t-emoji">🏃‍♀️</span>
+        <b id="tSport">0 <i>分钟</i></b>
+        <span class="t-label">今日运动</span>
+      </button>
+      <button class="tile" onclick="goTab('habit')">
+        <span class="t-emoji">✅</span>
+        <b id="tHabit">0 <i>/ 5 项</i></b>
+        <span class="t-label">习惯打卡</span>
+      </button>
+      <button class="tile" onclick="goTab('body')">
+        <span class="t-emoji">⚖️</span>
+        <b id="tWeight">—</b>
+        <span class="t-label">最新体重</span>
+      </button>
+    </div>
+    <div class="insight-card" id="insightCard"></div>
+    <div class="quote-card" id="quoteCard"></div>
+  </section>
+
+  <!-- ========== 目标计划 ========== -->
+  <section id="tab-goal" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>我的目标</h2>
+      <div class="row">
+        <div class="field"><label>起始体重 (kg)</label><input type="number" step="0.1" id="gStart"></div>
+        <div class="field"><label>目标体重 (kg)</label><input type="number" step="0.1" id="gTarget"></div>
+        <div class="field"><label>目标日期</label><input type="date" id="gDate"></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label>写给自己的话（每次打开都能看到）</label>
+        <input id="gMotto" placeholder="例如：慢慢来，比较快 ✨"></div>
+      <button class="btn" style="margin-top:14px" onclick="saveGoal()">保存目标</button>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>本周小计划</h2>
+      <div class="row">
+        <div class="field" style="flex:3"><input id="planInput" placeholder="例如：本周运动 4 次 / 晚上 8 点后不进食"></div>
+        <button class="btn" onclick="addPlan()">添加</button>
+      </div>
+      <div id="planList" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ========== 饮食 ========== -->
+  <section id="tab-diet" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>记一笔今天吃了什么</h2>
+      <div class="row">
+        <div class="field" style="max-width:130px"><label>餐次</label>
+          <select id="dMeal"><option>早餐🌅</option><option selected>午餐☀️</option><option>晚餐🌙</option><option>加餐🍓</option></select></div>
+        <div class="field" style="flex:2"><label>食物</label><input id="dFood" placeholder="例如：鸡胸肉沙拉"></div>
+        <div class="field" style="max-width:110px"><label>热量 (kcal)</label><input type="number" id="dKcal" placeholder="约"></div>
+        <button class="btn" onclick="addDiet()">记录</button>
+      </div>
+    </div>
+    <div class="stats" id="dietStats"></div>
+    <div class="card">
+      <h2><span class="dot"></span>今日饮食</h2>
+      <div id="dietList"></div>
+    </div>
+  </section>
+
+  <!-- ========== 运动 ========== -->
+  <section id="tab-sport" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>今天动了吗？</h2>
+      <div class="row">
+        <div class="field" style="flex:2"><label>运动项目</label>
+          <select id="sType">
+            <option>瑜伽🧘‍♀️</option><option>慢跑🏃‍♀️</option><option>跳绳🤸‍♀️</option>
+            <option>力量训练🏋️‍♀️</option><option>普拉提</option><option>散步🚶‍♀️</option>
+            <option>游泳🏊‍♀️</option><option>骑行🚴‍♀️</option><option>其他✨</option>
+          </select></div>
+        <div class="field" style="max-width:110px"><label>时长 (分钟)</label><input type="number" id="sMin" placeholder="30"></div>
+        <div class="field" style="max-width:110px"><label>消耗 (kcal)</label><input type="number" id="sKcal" placeholder="约"></div>
+        <button class="btn" onclick="addSport()">打卡</button>
+      </div>
+    </div>
+    <div class="stats" id="sportStats"></div>
+    <div class="card">
+      <h2><span class="dot"></span>近 7 天运动</h2>
+      <div id="sportList"></div>
+    </div>
+  </section>
+
+  <!-- ========== 身体 ========== -->
+  <section id="tab-body" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>记录今天的身体数据</h2>
+      <div class="row">
+        <div class="field"><label>体重 (kg)</label><input type="number" step="0.1" id="bWeight"></div>
+        <div class="field"><label>体脂率 (%)</label><input type="number" step="0.1" id="bFat"></div>
+        <div class="field"><label>腰围 (cm)</label><input type="number" step="0.1" id="bWaist"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label>臀围 (cm)</label><input type="number" step="0.1" id="bHip"></div>
+        <div class="field"><label>大腿围 (cm)</label><input type="number" step="0.1" id="bThigh"></div>
+        <button class="btn" onclick="addBody()">记录</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>体重曲线 📉</h2>
+      <canvas id="weightChart" width="700" height="220"></canvas>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>历史记录</h2>
+      <div id="bodyList"></div>
+    </div>
+  </section>
+
+  <!-- ========== 习惯 ========== -->
+  <section id="tab-habit" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>今日习惯打卡 <span class="tag" id="habitScore"></span></h2>
+      <div class="habits" id="habitList"></div>
+      <div class="row" style="margin-top:16px">
+        <div class="field" style="flex:3"><input id="habitInput" placeholder="添加新习惯，例如：睡前泡脚"></div>
+        <button class="btn" onclick="addHabit()">添加</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 周复盘 ========== -->
+  <section id="tab-review" style="display:none">
+    <div class="card">
+      <h2><span class="dot"></span>本周数据一览 <span class="tag" id="weekRange"></span></h2>
+      <div class="stats" id="reviewStats"></div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>写给自己的复盘</h2>
+      <textarea id="reviewText" placeholder="这周做得好的是…… / 下周想改进的是…… / 对自己说句话吧 💕"></textarea>
+      <button class="btn" style="margin-top:12px" onclick="saveReview()">保存本周复盘</button>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>过去的复盘</h2>
+      <div id="reviewList" class="week-list"></div>
+    </div>
+  </section>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bn-item active" data-tab="home"><span class="bn-ico">🏠</span>首页</button>
+    <button class="bn-item" data-tab="diet"><span class="bn-ico">🥗</span>饮食</button>
+    <div class="fab-wrap"><button class="fab" id="fabBtn" onclick="toggleFab()">＋</button></div>
+    <button class="bn-item" data-tab="sport"><span class="bn-ico">🏃‍♀️</span>运动</button>
+    <button class="bn-item" data-tab="review"><span class="bn-ico">📝</span>复盘</button>
+  </nav>
+  <div class="fab-menu" id="fabMenu">
+    <button onclick="goTab('goal')">🎯 目标计划</button>
+    <button onclick="goTab('body')">📏 身体记录</button>
+    <button onclick="goTab('habit')">✅ 习惯打卡</button>
+  </div>
+</div>
+
+<script>
+/* ================= 数据层 ================= */
+const KEY = "her_fitness_workspace_v1";
+const todayStr = () => new Date().toLocaleDateString("sv"); // yyyy-mm-dd
+function load(){
+  try{
+    const v=JSON.parse(localStorage.getItem(KEY));
+    if(v){
+      const hasReal=(v.diet&&Object.keys(v.diet).length)||(v.sport&&Object.keys(v.sport).length)||
+        (v.habitLog&&Object.keys(v.habitLog).length)||(v.body&&v.body.length);
+      if(hasReal||localStorage.getItem("her_demo_off")==="1")return v;
+    }
+  }catch(e){}
+  return demoData();
+}
+/* ===== 示例数据：虚拟小姐姐「小柚」一个月的减脂记录 ===== */
+function demoData(){
+  const s=blank();
+  s.goal={start:62.5,target:55,date:"2026-12-18",motto:"慢慢来，比较快 ✨"};
+  const weights=[62.5,62.4,62.6,62.3,62.2,62.0,62.1,61.8,61.9,61.6,61.7,61.4,61.5,61.2,61.3,61.0,61.1,60.9,60.7,60.8,60.5,60.6,60.4,60.2,60.3,60.1,59.9,60.0,59.8,59.9,59.8];
+  const days=[]; for(let i=30;i>=0;i--){const d=new Date("2026-09-18T00:00:00");d.setDate(d.getDate()-i);days.push(d.toLocaleDateString("sv"));}
+  const bf=["燕麦牛奶碗🥣|320","全麦面包+水煮蛋|350","无糖豆浆+蔬菜包|300","希腊酸奶+蓝莓|280","玉米+水煮蛋+黑咖啡|290"];
+  const lc=["鸡胸肉藜麦沙拉|420","杂粮饭+清蒸鲈鱼+西兰花|480","荞麦面+鸡丝+黄瓜|450","番茄炖牛腩+糙米饭(小碗)|520","虾仁荞麦面+凉拌木耳|430"];
+  const dn=["凉拌鸡丝+冬瓜汤|350","豆腐蔬菜味噌汤|300","清炒虾仁+芦笋|380","蒸蛋羹+凉拌菠菜|320","番茄豆腐煲+青菜|340"];
+  const sn=["苹果|80","无糖酸奶|100","小番茄一把|40","原味坚果10颗|150","美式咖啡|15"];
+  const pick=(arr,k)=>arr[(i*7+k*3)%arr.length].split("|");
+  const sportPlan={1:["瑜伽🧘‍♀️",60,180],2:["跳绳🤸‍♀️",30,320],3:["力量训练🏋️‍♀️",45,260],5:["普拉提",50,230],6:["慢跑🏃‍♀️",40,330],0:["散步🚶‍♀️",60,200]};
+  for(i=0;i<days.length;i++){
+    const ds=days[i], w=weights[i], t=i/30;
+    const wig=Math.sin(i*2.7)*0.2;
+    const dow=new Date(ds+"T00:00:00").getDay();
+    s.body.push({date:ds,weight:w,fat:+(28.5-1.7*t+wig*0.15).toFixed(1),
+      waist:+(72-3.5*t+wig).toFixed(1),hip:+(96-2*t+wig*0.6).toFixed(1),thigh:+(56-1.5*t+wig*0.5).toFixed(1)});
+    const mealList=[["早餐🌅",...pick(bf,i)],["午餐☀️",...pick(lc,i)],["晚餐🌙",...pick(dn,i)]];
+    s.diet[ds]=mealList.map(m=>({meal:m[0],food:m[1],kcal:+m[2]}));
+    if([5,6,0].includes(dow)||i%4===1){const x=pick(sn,i);s.diet[ds].push({meal:"加餐🍓",food:x[0],kcal:+x[1]});}
+    if(sportPlan[dow]){const p=sportPlan[dow];(s.sport[ds]=s.sport[ds]||[]).push({type:p[0],min:p[1],kcal:p[2]});}
+    const log=[1];
+    if(dow!==6||i%3===0)log.push(2);
+    if(dow!==0&&dow!==6)log.push(3);
+    if(sportPlan[dow])log.push(4);
+    if(i%2===0)log.push(5);
+    s.habitLog[ds]=[...new Set(log)];
+  }
+  s.body.reverse();
+  s.plans=[
+    {text:"每天走够 8000 步",done:true},
+    {text:"晚上 8 点后不进食",done:true},
+    {text:"本周运动 5 次",done:true},
+    {text:"姨妈期只做拉伸，不称体重",done:false}
+  ];
+  s.reviews={
+    "2026-08-24":"第一周干劲满满！体重 62.5 → 61.3，掉了 1.2kg。运动去了 5 次，饮食基本控制在 1400kcal 以内。发现晚上不吃零食也没那么难，继续保持！",
+    "2026-08-31":"这周赶上排卵期，特别馋，周六中午吃了一顿火锅犒劳自己……不过第二天就恢复了正常饮食，没有暴食也没有自暴自弃，为自己骄傲。体重 61.0，稳稳下降中 🌷",
+    "2026-09-07":"姨妈来了，前三天只做拉伸和散步，没称体重。学会和自己和解：减脂是长期的事，不需要每天都完美。周后水肿消下去，体重回到 60.2 💪 下周想试试早起空腹散步 20 分钟。"
+  };
+  return s;
+}
+function clearDemo(){
+  localStorage.setItem("her_demo_off","1");
+  localStorage.setItem(KEY, JSON.stringify(blank()));
+  location.reload();
+}
+function blank(){ return {goal:{}, plans:[], diet:{}, sport:{}, body:[], habits:[
+  {id:1,name:"喝够 8 杯水 💧"},{id:2,name:"23 点前睡觉 🌙"},
+  {id:3,name:"不吃零食 🍬"},{id:4,name:"走够 8000 步 👟"},{id:5,name:"拉伸 10 分钟 🧘‍♀️"}
+], habitLog:{}, reviews:{}}; }
+let S = load();
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function last7(){ const a=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(d.toLocaleDateString("sv"));} return a; }
+function weekOf(dstr){ const d=new Date(dstr+"T00:00:00"); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); return d.toLocaleDateString("sv"); }
+
+/* ================= 导航（目录抽屉 + 底部快捷栏） ================= */
+const TABS=["home","goal","diet","sport","body","habit","review"];
+function goTab(t){
+  document.querySelectorAll("#drawer button").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  document.querySelectorAll("#bottomNav .bn-item").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+  TABS.forEach(x=>document.getElementById("tab-"+x).style.display=(x===t)?"":"none");
+  render(t); closeMenu(); window.scrollTo({top:0,behavior:"smooth"});
+}
+document.getElementById("drawer").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON")return;
+  goTab(e.target.dataset.tab);
+});
+document.getElementById("bottomNav").addEventListener("click",e=>{
+  const b=e.target.closest(".bn-item"); if(!b)return;
+  goTab(b.dataset.tab);
+});
+function closeFab(){
+  document.getElementById("fabMenu").classList.remove("show");
+  document.getElementById("fabBtn").classList.remove("open");
+}
+function closeMenu(){
+  document.getElementById("drawer").classList.remove("open");
+  closeFab();
+  document.getElementById("menuOverlay").classList.remove("show");
+}
+function openMenu(){
+  document.getElementById("drawer").classList.add("open");
+  closeFab();
+  document.getElementById("menuOverlay").classList.add("show");
+}
+function toggleFab(){
+  const menu=document.getElementById("fabMenu");
+  if(menu.classList.contains("show")){closeMenu();return;}
+  document.getElementById("drawer").classList.remove("open");
+  menu.classList.add("show");
+  document.getElementById("fabBtn").classList.add("open");
+  document.getElementById("menuOverlay").classList.add("show");
+}
+
+/* ================= 头部 ================= */
+function renderHeader(){
+  document.getElementById("todayLine").textContent =
+    new Date().toLocaleDateString("zh-CN",{month:"long",day:"numeric",weekday:"long"});
+  const g=S.goal;
+  if(g.motto) document.getElementById("motto").textContent="🌸 "+g.motto;
+  if(g.start&&g.target){
+    const total=Math.abs(g.start-g.target)||1;
+    const done=Math.min(Math.max((g.start-(S.body[0]?.weight??g.start))/total,0),1);
+    const pct=Math.round(done*100);
+    document.getElementById("ring").style.strokeDashoffset=289-289*pct/100;
+    document.getElementById("ringNum").textContent=pct+"%";
+  }
+}
+
+/* ================= 目标 ================= */
+function saveGoal(){
+  S.goal={start:+document.getElementById("gStart").value||null,
+    target:+document.getElementById("gTarget").value||null,
+    date:document.getElementById("gDate").value, motto:document.getElementById("gMotto").value};
+  save(); renderHeader(); toast("目标已保存 🌷");
+}
+function addPlan(){
+  const v=document.getElementById("planInput").value.trim(); if(!v)return;
+  S.plans.unshift({text:v,done:false}); document.getElementById("planInput").value="";
+  save(); renderPlans();
+}
+function togglePlan(i){ S.plans[i].done=!S.plans[i].done; save(); renderPlans(); }
+function delPlan(i){ S.plans.splice(i,1); save(); renderPlans(); }
+function renderPlans(){
+  const el=document.getElementById("planList");
+  el.innerHTML = S.plans.length? S.plans.map((p,i)=>`
+    <div class="list-item">
+      <span style="cursor:pointer" onclick="togglePlan(${i})">${p.done?"✅":"⬜"} <span style="${p.done?'text-decoration:line-through;color:var(--muted)':''}">${p.text}</span></span>
+      <button class="del" onclick="delPlan(${i})">✕</button>
+    </div>`).join("") : `<div class="empty">还没有计划，先定一个本周小目标吧 🎀</div>`;
+}
+
+/* ================= 饮食 ================= */
+function addDiet(){
+  const food=document.getElementById("dFood").value.trim(); if(!food)return;
+  const d=todayStr();
+  (S.diet[d]=S.diet[d]||[]).push({meal:document.getElementById("dMeal").value,
+    food, kcal:+document.getElementById("dKcal").value||0});
+  document.getElementById("dFood").value=""; document.getElementById("dKcal").value="";
+  save(); renderDiet(); renderHeader();
+}
+function delDiet(d,i){ S.diet[d].splice(i,1); if(!S.diet[d].length)delete S.diet[d]; save(); renderDiet(); }
+function renderDiet(){
+  const d=todayStr(), items=S.diet[d]||[];
+  const kcal=items.reduce((s,x)=>s+x.kcal,0);
+  const w7=last7().reduce((s,dd)=>s+(S.diet[dd]||[]).reduce((a,x)=>a+x.kcal,0),0);
+  document.getElementById("dietStats").innerHTML=`
+    <div class="stat"><b>${items.length}</b><span>今日记录笔数</span></div>
+    <div class="stat"><b>${kcal}</b><span>今日摄入 kcal</span></div>
+    <div class="stat"><b>${w7}</b><span>近 7 天总摄入</span></div>`;
+  document.getElementById("dietList").innerHTML = items.length? items.map((x,i)=>`
+    <div class="list-item"><div><b>${x.meal}</b> ${x.food}<div class="meta">约 ${x.kcal||"—"} kcal</div></div>
+    <button class="del" onclick="delDiet('${d}',${i})">✕</button></div>`).join("")
+    : `<div class="empty">今天还没记录，好好吃饭也是一种自律 🍚</div>`;
+}
+
+/* ================= 运动 ================= */
+function addSport(){
+  const min=+document.getElementById("sMin").value; if(!min)return;
+  const d=todayStr();
+  (S.sport[d]=S.sport[d]||[]).push({type:document.getElementById("sType").value,
+    min, kcal:+document.getElementById("sKcal").value||0});
+  document.getElementById("sMin").value=""; document.getElementById("sKcal").value="";
+  save(); renderSport();
+}
+function delSport(d,i){ S.sport[d].splice(i,1); if(!S.sport[d].length)delete S.sport[d]; save(); renderSport(); }
+function renderSport(){
+  const w7=last7();
+  let mins=0,kcal=0,times=0;
+  w7.forEach(dd=>(S.sport[dd]||[]).forEach(x=>{mins+=x.min;kcal+=x.kcal;times++;}));
+  document.getElementById("sportStats").innerHTML=`
+    <div class="stat"><b>${times}</b><span>近 7 天次数</span></div>
+    <div class="stat"><b>${mins}</b><span>总时长 (分钟)</span></div>
+    <div class="stat"><b>${kcal}</b><span>总消耗 kcal</span></div>`;
+  const items=w7.flatMap(dd=>(S.sport[dd]||[]).map(x=>({...x,d:dd}))).reverse();
+  document.getElementById("sportList").innerHTML = items.length? items.map((x,i)=>`
+    <div class="list-item"><div><b>${x.type}</b> ${x.min} 分钟<div class="meta">${x.d} · 消耗约 ${x.kcal||"—"} kcal</div></div>
+    <button class="del" onclick="delSport('${x.d}',${i})">✕</button></div>`).join("")
+    : `<div class="empty">近 7 天还没有运动记录，动起来吧 💪</div>`;
+}
+
+/* ================= 身体 ================= */
+function addBody(){
+  const rec={date:todayStr(), weight:+document.getElementById("bWeight").value||null,
+    fat:+document.getElementById("bFat").value||null, waist:+document.getElementById("bWaist").value||null,
+    hip:+document.getElementById("bHip").value||null, thigh:+document.getElementById("bThigh").value||null};
+  if(!rec.weight&&!rec.fat&&!rec.waist&&!rec.hip&&!rec.thigh)return;
+  S.body=S.body.filter(x=>x.date!==rec.date); S.body.unshift(rec);
+  save(); renderBody(); renderHeader();
+}
+function delBody(d){ S.body=S.body.filter(x=>x.date!==d); save(); renderBody(); renderHeader(); }
+function renderBody(){
+  // 图表
+  const c=document.getElementById("weightChart"), ctx=c.getContext("2d");
+  const data=S.body.filter(x=>x.weight).slice(0,30).reverse();
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.strokeStyle="#f5d7e2"; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=20+i*(180/4);ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(680,y);ctx.stroke();}
+  if(data.length){
+    const ws=data.map(x=>x.weight), min=Math.min(...ws)-1, max=Math.max(...ws)+1;
+    const px=i=>50+i*(620/Math.max(data.length-1,1));
+    const py=w=>20+(1-(w-min)/(max-min))*180;
+    ctx.strokeStyle="#e8709a"; ctx.lineWidth=3; ctx.lineJoin="round"; ctx.beginPath();
+    data.forEach((x,i)=>i?ctx.lineTo(px(i),py(x.weight)):ctx.moveTo(px(0),py(x.weight))); ctx.stroke();
+    data.forEach((x,i)=>{ctx.fillStyle="#d4507f";ctx.beginPath();ctx.arc(px(i),py(x.weight),4,0,7);ctx.fill();});
+    ctx.fillStyle="#a98e97";ctx.font="12px sans-serif";
+    ctx.fillText(max.toFixed(1),8,24);ctx.fillText(min.toFixed(1),8,204);
+    ctx.fillStyle="#d4507f";ctx.font="bold 13px sans-serif";
+    ctx.fillText(data[data.length-1].weight+" kg",px(data.length-1)-30,py(data[data.length-1].weight)-12);
+  }else{ ctx.fillStyle="#c9a4b1";ctx.font="14px sans-serif";ctx.fillText("记录 2 次以上就能看到曲线啦 🌸",260,110); }
+  document.getElementById("bodyList").innerHTML = S.body.length? S.body.map(x=>`
+    <div class="list-item"><div><b>${x.date}</b>${x.weight?` · ${x.weight} kg`:""}${x.fat?` · 体脂 ${x.fat}%`:""}${x.waist?` · 腰 ${x.waist}cm`:""}${x.hip?` · 臀 ${x.hip}cm`:""}${x.thigh?` · 腿 ${x.thigh}cm`:""}</div>
+    <button class="del" onclick="delBody('${x.date}')">✕</button></div>`).join("")
+    : `<div class="empty">还没有身体记录 📏</div>`;
+}
+
+/* ================= 习惯 ================= */
+function addHabit(){
+  const v=document.getElementById("habitInput").value.trim(); if(!v)return;
+  S.habits.push({id:Date.now(),name:v}); document.getElementById("habitInput").value="";
+  save(); renderHabit();
+}
+function delHabit(id){ S.habits=S.habits.filter(h=>h.id!==id); save(); renderHabit(); }
+function toggleHabit(id){
+  const d=todayStr(); S.habitLog[d]=S.habitLog[d]||[];
+  const arr=S.habitLog[d], i=arr.indexOf(id);
+  i>=0?arr.splice(i,1):arr.push(id);
+  save(); renderHabit();
+}
+function streakOf(id){
+  let s=0; const d=new Date();
+  for(;;){ const ds=d.toLocaleDateString("sv");
+    if((S.habitLog[ds]||[]).includes(id)){s++;d.setDate(d.getDate()-1);}else break; }
+  return s;
+}
+function renderHabit(){
+  const d=todayStr(), done=S.habitLog[d]||[];
+  document.getElementById("habitScore").textContent=`${done.length}/${S.habits.length} 已完成`;
+  document.getElementById("habitList").innerHTML = S.habits.map(h=>{
+    const ok=done.includes(h.id), st=streakOf(h.id);
+    return `<div class="habit ${ok?'done':''}" onclick="toggleHabit(${h.id})">
+      <span class="box">${ok?"✓":""}</span><span class="name">${h.name}</span>
+      ${st>0?`<span class="streak streak-flame">🔥 连续 ${st} 天</span>`:""}
+      <button class="del" onclick="event.stopPropagation();delHabit(${h.id})">✕</button></div>`;
+  }).join("");
+}
+
+/* ================= 周复盘 ================= */
+function saveReview(){
+  const w=weekOf(todayStr()), v=document.getElementById("reviewText").value.trim();
+  if(!v)return; S.reviews[w]=v; save(); renderReview(); toast("本周复盘已保存 💌");
+}
+function renderReview(){
+  const w7=last7(), w=weekOf(todayStr());
+  document.getElementById("weekRange").textContent=w+" 起的一周";
+  let kcal=0,mins=0,times=0,hit=0,poss=0;
+  w7.forEach(dd=>{
+    (S.diet[dd]||[]).forEach(x=>kcal+=x.kcal);
+    (S.sport[dd]||[]).forEach(x=>{mins+=x.min;times++;});
+    S.habits.forEach(h=>{poss++; if((S.habitLog[dd]||[]).includes(h.id))hit++;});
+  });
+  const rate=poss?Math.round(hit/poss*100):0;
+  const first=S.body.find(x=>x.date>=w7[0]&&x.weight), last=S.body.find(x=>x.date>=w7[0]&&x.weight);
+  document.getElementById("reviewStats").innerHTML=`
+    <div class="stat"><b>${kcal}</b><span>本周摄入 kcal</span></div>
+    <div class="stat"><b>${times}</b><span>运动次数</span></div>
+    <div class="stat"><b>${mins}</b><span>运动分钟</span></div>
+    <div class="stat"><b>${rate}%</b><span>习惯完成率</span></div>
+    <div class="stat"><b>${S.body.filter(x=>x.date>=w7[0]&&x.weight).length}</b><span>称重次数</span></div>
+    <div class="stat"><b>${S.reviews[w]?"已写":"待写"}</b><span>复盘状态</span></div>`;
+  document.getElementById("reviewText").value=S.reviews[w]||"";
+  const keys=Object.keys(S.reviews).sort().reverse().filter(k=>k!==w);
+  document.getElementById("reviewList").innerHTML = keys.length? keys.map(k=>`
+    <div class="week-item"><b>${k} 那一周</b><br>${S.reviews[k].replace(/</g,"&lt;")}</div>`).join("")
+    : `<div class="empty">过去的复盘会出现在这里 🌷</div>`;
+}
+
+/* ================= 首页 ================= */
+function renderHome(){
+  const d=todayStr(), g=S.goal, now=new Date();
+  const h=now.getHours();
+  document.getElementById("greetHi").textContent =
+    h<6?"夜深了，早点休息 🌙":h<11?"早上好呀 ☀️":h<14?"中午好呀 🌼":h<18?"下午好呀 🌸":"晚上好呀 🌙";
+  const dates=[...Object.keys(S.diet),...Object.keys(S.sport),...Object.keys(S.habitLog),...S.body.map(x=>x.date)].sort();
+  const dateLine=now.toLocaleDateString("zh-CN",{month:"long",day:"numeric",weekday:"long"});
+  document.getElementById("greetSub").textContent = dates.length?
+    `${dateLine} · 已经坚持 ${Math.round((now-new Date(dates[0]+"T00:00:00"))/86400000)+1} 天啦，真棒` :
+    `${dateLine} · 从今天开始记录吧，我会一直陪着你`;
+  const meals=S.diet[d]||[], kcal=meals.reduce((s2,x)=>s2+x.kcal,0);
+  document.getElementById("tDiet").innerHTML=`${kcal} <i>kcal</i>`;
+  const sp=(S.sport[d]||[]).reduce((a,x)=>({min:a.min+x.min}),{min:0});
+  document.getElementById("tSport").innerHTML=`${sp.min} <i>分钟</i>`;
+  const done=(S.habitLog[d]||[]).length, tot=S.habits.length;
+  document.getElementById("tHabit").innerHTML=`${done} <i>/ ${tot} 项</i>`;
+  const bw=S.body.find(x=>x.weight);
+  document.getElementById("tWeight").innerHTML=bw?`${bw.weight} <i>kg</i>`:"— <i>kg</i>";
+  const w7=last7(); let wn=0,hit=0,poss=0;
+  w7.forEach(dd=>{
+    (S.sport[dd]||[]).forEach(()=>wn++);
+    S.habits.forEach(hb=>{poss++;if((S.habitLog[dd]||[]).includes(hb.id))hit++;});
+  });
+  const wr=poss?Math.round(hit/poss*100):0;
+  document.getElementById("insightCard").innerHTML =
+    `<b>本周小结</b> ｜ 运动 ${wn} 次 · 习惯完成率 ${wr}% ` +
+    (wr>=80?"· 状态超棒，继续保持！🎉":wr>=50?"· 稳扎稳打，慢慢来 ✨":wn+hit?"· 别灰心，明天重新开始也来得及 🌱":"· 万事开头难，先从记一顿饭开始吧 🍚");
+  const quotes=[
+    "你不是在减肥，是在养成更好的自己 🌱",
+    "自律不是苦行，是温柔而坚定地照顾自己 🤍",
+    "今天的每一小步，都是未来的底气 ✨",
+    "好好吃饭，好好运动，好好爱自己 🌷",
+    "数字不重要，镜子里的笑容才重要 😊",
+    "慢慢来，比较快 ✨"
+  ];
+  document.getElementById("quoteCard").textContent = quotes[now.getDate()%quotes.length];
+}
+
+/* ================= 小提示 ================= */
+let toastTimer;
+function toast(msg){
+  let t=document.getElementById("toast");
+  if(!t){t=document.createElement("div");t.id="toast";
+    t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#d4507f;color:#fff;padding:10px 22px;border-radius:99px;font-size:14px;box-shadow:0 6px 20px rgba(212,80,127,.4);z-index:99;transition:opacity .3s";
+    document.body.appendChild(t);}
+  t.textContent=msg; t.style.opacity=1;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.style.opacity=0,1800);
+}
+
+/* ================= 启动 ================= */
+function render(tab){
+  if(tab==="home")renderHome();
+  if(tab==="goal")renderPlans();
+  if(tab==="diet")renderDiet();
+  if(tab==="sport")renderSport();
+  if(tab==="body")renderBody();
+  if(tab==="habit")renderHabit();
+  if(tab==="review")renderReview();
+}
+(function init(){
+  if(localStorage.getItem("her_demo_off")!=="1")document.getElementById("demoBanner").style.display="";
+  const g=S.goal;
+  if(g.start)document.getElementById("gStart").value=g.start;
+  if(g.target)document.getElementById("gTarget").value=g.target;
+  if(g.date)document.getElementById("gDate").value=g.date;
+  if(g.motto)document.getElementById("gMotto").value=g.motto;
+  renderHeader(); renderPlans(); renderDiet(); renderSport(); renderBody(); renderHabit(); renderReview(); renderHome();
+})();
+</script>
+</body>
+</html>
